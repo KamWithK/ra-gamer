@@ -20,7 +20,9 @@ Input :: struct {
 }
 
 Player :: struct {
-	pos: linalg.Vector3f32,
+	pos:       linalg.Vector3f32,
+	run_anim:  drawing.Animation,
+	face_left: bool,
 }
 
 Global :: struct {
@@ -40,9 +42,32 @@ main :: proc() {
 
 	assets := asset_manager.AssetManager{}
 
-	asset_manager.load_texture(&assets, "assets/Main Characters/Mask Dude/Run (32x32).png", "mask")
-	knight := asset_manager.get_texture(&assets, "mask")
-	test_sheet := drawing.create_sheet(knight, 32, {1, 12})
+	asset_manager.load_texture(
+		&assets,
+		"assets/Main Characters/Mask Dude/Run (32x32).png",
+		"mask_run",
+	)
+	mask_run := asset_manager.get_texture(&assets, "mask_run")
+	test_sheet := drawing.create_sheet(mask_run, 32, {12, 1})
+	g.player.run_anim = drawing.Animation {
+		sprite_sheet  = &test_sheet,
+		frames        = {
+			{0, 0},
+			{1, 0},
+			{2, 0},
+			{3, 0},
+			{4, 0},
+			{5, 0},
+			{6, 0},
+			{7, 0},
+			{8, 0},
+			{9, 0},
+			{10, 0},
+			{11, 0},
+		},
+		current_frame = 0,
+		frame_period  = 0.05,
+	}
 
 	g.player.pos.xy = 50
 
@@ -67,6 +92,7 @@ event :: proc() {
 }
 
 update :: proc() {
+	dt := rl.GetFrameTime()
 	move_input: linalg.Vector3f32
 	if g.input.down do move_input.y += 1
 	if g.input.up do move_input.y -= 1
@@ -75,6 +101,8 @@ update :: proc() {
 
 	if move_input.x != 0 && move_input.y != 0 do move_input.xy = move_input.xy * 1.41 * 0.5
 	g.player.pos += move_input * SPEED_FACTOR
+
+	drawing.update_animation(&g.player.run_anim, dt)
 }
 
 draw :: proc(assets: ^asset_manager.AssetManager, sheet: ^drawing.SpriteSheet) {
@@ -87,4 +115,3 @@ draw :: proc(assets: ^asset_manager.AssetManager, sheet: ^drawing.SpriteSheet) {
 
 	rl.EndDrawing()
 }
-
