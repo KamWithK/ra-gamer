@@ -1,5 +1,6 @@
 package game
 
+import "core:log"
 import "core:math/linalg"
 import rl "vendor:raylib"
 
@@ -29,6 +30,8 @@ Global :: struct {
 g: Global
 
 main :: proc() {
+	context.logger = log.create_console_logger()
+
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "game")
 	rl.SetWindowState(WINDOW_FLAGS)
 	defer rl.CloseWindow()
