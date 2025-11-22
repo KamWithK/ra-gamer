@@ -7,10 +7,12 @@ import "drawing"
 
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
+WINDOW_FLAGS :: rl.ConfigFlags{.WINDOW_RESIZABLE}
 FPS :: 60
 
 main :: proc() {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "game")
+	rl.SetWindowState(WINDOW_FLAGS)
 	defer rl.CloseWindow()
 	rl.SetWindowFocused()
 	rl.SetTargetFPS(FPS)
@@ -41,3 +43,4 @@ draw :: proc(assets: ^asset_manager.AssetManager, sheet: ^drawing.SpriteSheet) {
 
 	rl.EndDrawing()
 }
+
