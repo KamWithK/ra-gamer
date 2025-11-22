@@ -49,22 +49,10 @@ main :: proc() {
 	)
 	mask_run := asset_manager.get_texture(&assets, "mask_run")
 	test_sheet := drawing.create_sheet(mask_run, 32, {12, 1})
+
 	g.player.run_anim = drawing.Animation {
 		sprite_sheet  = &test_sheet,
-		frames        = {
-			{0, 0},
-			{1, 0},
-			{2, 0},
-			{3, 0},
-			{4, 0},
-			{5, 0},
-			{6, 0},
-			{7, 0},
-			{8, 0},
-			{9, 0},
-			{10, 0},
-			{11, 0},
-		},
+		frames        = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
 		current_frame = 0,
 		frame_period  = 0.05,
 	}
@@ -109,7 +97,13 @@ draw :: proc(assets: ^asset_manager.AssetManager, sheet: ^drawing.SpriteSheet) {
 	rl.ClearBackground(rl.WHITE)
 	rl.BeginDrawing()
 
-	drawing.draw_sprite(sheet, {0, 0, 32, 32}, {g.player.pos.x, g.player.pos.y}, 2)
+	player_run := &g.player.run_anim
+	drawing.draw_tile(
+		player_run.sprite_sheet,
+		player_run.frames[player_run.current_frame],
+		g.player.pos.xy,
+		1,
+	)
 
 	rl.DrawFPS(0, 0)
 

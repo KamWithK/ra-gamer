@@ -3,7 +3,7 @@ package drawing
 
 Animation :: struct {
 	sprite_sheet:  ^SpriteSheet,
-	frames:        [][2]uint,
+	frames:        []uint,
 	current_frame: uint,
 	frame_period:  f32,
 	frame_timer:   f32,
