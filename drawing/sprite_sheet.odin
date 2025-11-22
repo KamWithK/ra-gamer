@@ -1,19 +1,18 @@
 package drawing
 
+import "core:math/linalg"
 import rl "vendor:raylib"
-
-import "../types"
 
 SpriteSheet :: struct {
 	texture:         ^rl.Texture2D,
-	cell_size:       types.Vec2(uint),
-	cell_dimensions: types.Vec2(uint),
+	cell_size:       [2]uint,
+	cell_dimensions: [2]uint,
 }
 
 create_sheet :: proc(
 	texture: ^rl.Texture2D,
 	cell_size: uint,
-	cell_dimensions: types.Vec2(uint),
+	cell_dimensions: [2]uint,
 ) -> SpriteSheet {
 	sheet := SpriteSheet {
 		texture         = texture,
@@ -26,8 +25,8 @@ create_sheet :: proc(
 
 draw_tile :: proc(
 	sprite_sheet: ^SpriteSheet,
-	tile_coords: types.Vec2(uint),
-	offset: types.Vec2(f32),
+	tile_coords: [2]uint,
+	offset: linalg.Vector2f32,
 	scale: f32,
 ) {
 	rect := rl.Rectangle {
@@ -43,7 +42,7 @@ draw_tile :: proc(
 draw_sprite :: proc(
 	sprite_sheet: ^SpriteSheet,
 	source_rect: rl.Rectangle,
-	offset: types.Vec2(f32),
+	offset: linalg.Vector2f32,
 	scale: f32,
 ) {
 	rl.DrawTexturePro(
@@ -55,3 +54,4 @@ draw_sprite :: proc(
 		rl.WHITE,
 	)
 }
+
