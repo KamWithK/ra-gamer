@@ -4,8 +4,8 @@ import "core:log"
 import "core:math/linalg"
 import rl "vendor:raylib"
 
-import "asset_manager"
 import "drawing"
+import "managers"
 
 WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
@@ -28,10 +28,14 @@ Player :: struct {
 Global :: struct {
 	input:  Input,
 	player: Player,
+	assets: managers.AssetManager,
+	sheets: managers.SpriteSheetManager,
 }
 g: Global
 
 main :: proc() {
+	using managers
+
 	context.logger = log.create_console_logger()
 
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "game")
@@ -40,18 +44,19 @@ main :: proc() {
 	rl.SetWindowFocused()
 	rl.SetTargetFPS(FPS)
 
-	assets := asset_manager.AssetManager{}
+	g.assets = AssetManager{}
+	g.sheets = SpriteSheetManager{}
 
-	asset_manager.load_texture(
-		&assets,
+	mask_run := load_texture(
+		&g.assets,
 		"assets/Main Characters/Mask Dude/Run (32x32).png",
 		"mask_run",
 	)
-	mask_run := asset_manager.get_texture(&assets, "mask_run")
 	test_sheet := drawing.create_sheet(mask_run, 32, {12, 1})
+	insert_sheet(&g.sheets, test_sheet, "mask_run")
 
 	g.player.run_anim = drawing.Animation {
-		sprite_sheet  = &test_sheet,
+		sprite_sheet  = get_sheet(&g.sheets, "mask_run"),
 		frames        = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
 		current_frame = 0,
 		frame_period  = 0.05,
