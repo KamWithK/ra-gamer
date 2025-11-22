@@ -92,7 +92,7 @@ update :: proc() {
 	if g.input.left do move_input.x -= 1
 	if g.input.right do move_input.x += 1
 
-	if move_input.x != 0 && move_input.y != 0 do move_input.xy = move_input.xy * 1.41 * 0.5
+	if move_input.xy != 0 do move_input.xy *= 1.41 * 0.5
 	g.player.pos += move_input * SPEED_FACTOR
 
 	drawing.update_animation(&g.player.run_anim, dt)
