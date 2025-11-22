@@ -62,7 +62,7 @@ main :: proc() {
 	for !rl.WindowShouldClose() {
 		event()
 		update()
-		draw(&assets, &test_sheet)
+		draw()
 	}
 }
 
@@ -93,7 +93,7 @@ update :: proc() {
 	drawing.update_animation(&g.player.run_anim, dt)
 }
 
-draw :: proc(assets: ^asset_manager.AssetManager, sheet: ^drawing.SpriteSheet) {
+draw :: proc() {
 	rl.ClearBackground(rl.WHITE)
 	rl.BeginDrawing()
 
