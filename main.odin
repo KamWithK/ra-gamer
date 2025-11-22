@@ -11,7 +11,7 @@ WINDOW_WIDTH :: 1920
 WINDOW_HEIGHT :: 1080
 WINDOW_FLAGS :: rl.ConfigFlags{.WINDOW_RESIZABLE}
 FPS :: 60
-SPEED_FACTOR :: 10
+SPEED_FACTOR :: 500
 
 Input :: struct {
 	down, up, left, right, space: bool,
@@ -98,7 +98,7 @@ update :: proc() {
 	if g.input.right do move_input.x += 1
 
 	if move_input.xy != 0 do move_input.xy *= 1.41 * 0.5
-	g.player.pos += move_input * SPEED_FACTOR
+	g.player.pos += move_input * SPEED_FACTOR * dt
 
 	drawing.update_animation(&g.player.run_anim, dt)
 }
