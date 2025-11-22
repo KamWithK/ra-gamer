@@ -17,9 +17,9 @@ main :: proc() {
 
 	assets := asset_manager.AssetManager{}
 
-	asset_manager.load_texture(&assets, "assets/sprites/knight.png", "knight")
-	knight := asset_manager.get_texture(&assets, "knight")
-	test_sheet := drawing.create_sheet(knight, 32, {8, 8})
+	asset_manager.load_texture(&assets, "assets/Main Characters/Mask Dude/Run (32x32).png", "mask")
+	knight := asset_manager.get_texture(&assets, "mask")
+	test_sheet := drawing.create_sheet(knight, 32, {1, 12})
 
 	for !rl.WindowShouldClose() {
 		update()
