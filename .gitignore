@@ -1,0 +1,9 @@
+.direnv
+/build
+.DS_Store
+
+/*.exe
+/pppp
+/*.pdb
+/*.dSYM
+/extern
