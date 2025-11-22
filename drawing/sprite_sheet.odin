@@ -28,12 +28,17 @@ draw_tile :: proc(
 	tile_coords: [2]uint,
 	offset: linalg.Vector2f32,
 	scale: f32,
+	flipped: bool,
 ) {
 	rect := rl.Rectangle {
 		f32(tile_coords.x * sprite_sheet.cell_size.x),
 		f32(tile_coords.y * sprite_sheet.cell_size.y),
 		f32(sprite_sheet.cell_size.x),
 		f32(sprite_sheet.cell_size.y),
+	}
+	if flipped {
+		rect.width *= -1
+		rect.x += f32(sprite_sheet.cell_size.x)
 	}
 
 	draw_sprite(sprite_sheet, rect, offset, scale)
@@ -54,4 +59,3 @@ draw_sprite :: proc(
 		rl.WHITE,
 	)
 }
-

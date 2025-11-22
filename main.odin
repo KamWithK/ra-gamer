@@ -21,6 +21,7 @@ Input :: struct {
 
 Player :: struct {
 	pos:       linalg.Vector3f32,
+	vel:       linalg.Vector3f32,
 	run_anim:  drawing.Animation,
 	face_left: bool,
 }
@@ -87,9 +88,13 @@ event :: proc() {
 update :: proc() {
 	dt := rl.GetFrameTime()
 	move_input: linalg.Vector3f32
+	g.player.face_left = false
 	if g.input.down do move_input.y += 1
 	if g.input.up do move_input.y -= 1
-	if g.input.left do move_input.x -= 1
+	if g.input.left {
+		move_input.x -= 1
+		g.player.face_left = true
+	}
 	if g.input.right do move_input.x += 1
 
 	if move_input.xy != 0 do move_input.xy *= 1.41 * 0.5
@@ -108,6 +113,7 @@ draw :: proc() {
 		player_run.frames[player_run.current_frame],
 		g.player.pos.xy,
 		1,
+		g.player.face_left,
 	)
 
 	rl.DrawFPS(0, 0)
