@@ -25,6 +25,22 @@ SpriteSheetManager :: struct {
 	sheets: map[string]drawing.SpriteSheet,
 }
 
+create_sheet :: proc(
+	sheets: ^SpriteSheetManager,
+	name: string,
+	texture: ^rl.Texture2D,
+	cell_size: uint,
+	cell_dimensions: [2]uint,
+) -> ^drawing.SpriteSheet {
+	sheets.sheets[name] = drawing.SpriteSheet {
+		texture         = texture,
+		cell_size       = {cell_size, cell_size},
+		cell_dimensions = cell_dimensions,
+	}
+
+	return &sheets.sheets[name]
+}
+
 insert_sheet :: proc(
 	sheet_manager: ^SpriteSheetManager,
 	sheet: drawing.SpriteSheet,

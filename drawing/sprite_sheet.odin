@@ -9,19 +9,6 @@ SpriteSheet :: struct {
 	cell_dimensions: [2]uint,
 }
 
-create_sheet :: proc(
-	texture: ^rl.Texture2D,
-	cell_size: uint,
-	cell_dimensions: [2]uint,
-) -> SpriteSheet {
-	sheet := SpriteSheet {
-		texture         = texture,
-		cell_size       = {cell_size, cell_size},
-		cell_dimensions = cell_dimensions,
-	}
-
-	return sheet
-}
 
 draw_tile :: proc(
 	sprite_sheet: ^SpriteSheet,

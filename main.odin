@@ -22,7 +22,8 @@ Input :: struct {
 Player :: struct {
 	pos:       linalg.Vector3f32,
 	vel:       linalg.Vector3f32,
-	run_anim:  drawing.Animation,
+	run_anim:  ^drawing.Animation,
+	idle_anim: ^drawing.Animation,
 	face_left: bool,
 }
 
@@ -35,42 +36,67 @@ Global :: struct {
 }
 g: Global
 
-main :: proc() {
+init :: proc() {
 	using managers
 
 	context.logger = log.create_console_logger()
 
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "game")
 	rl.SetWindowState(WINDOW_FLAGS)
-	defer rl.CloseWindow()
 	rl.SetWindowFocused()
 	rl.SetTargetFPS(FPS)
 
-	g.assets = AssetManager{}
-	g.sheets = SpriteSheetManager{}
+
+	terrain := load_texture(&g.assets, "assets/Terrain/Terrain (16x16).png", "terrain")
+	terrain_sheet := create_sheet(&g.sheets, "terrain", terrain, 16, {22, 11})
+
+	g.tilemap = drawing.test_map(terrain_sheet)
+
 
 	mask_run := load_texture(
 		&g.assets,
 		"assets/Main Characters/Mask Dude/Run (32x32).png",
 		"mask_run",
 	)
-	test_sheet := drawing.create_sheet(mask_run, 32, {12, 1})
-	insert_sheet(&g.sheets, test_sheet, "mask_run")
+	create_sheet(&g.sheets, "mask_run", mask_run, 32, {12, 1})
 
-	terrain := load_texture(&g.assets, "assets/Terrain/Terrain (16x16).png", "terrain")
-	terrain_sheet := drawing.create_sheet(terrain, 16, {22, 11})
-	insert_sheet(&g.sheets, terrain_sheet, "terrain")
 
-	g.tilemap = drawing.test_map(&terrain_sheet)
+	mask_idle := load_texture(
+		&g.assets,
+		"assets/Main Characters/Mask Dude/Idle (32x32).png",
+		"mask_idle",
+	)
+	create_sheet(&g.sheets, "mask_idle", mask_idle, 32, {11, 1})
 
-	g.player.run_anim = drawing.Animation {
-		sprite_sheet  = get_sheet(&g.sheets, "mask_run"),
-		frames        = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
-		current_frame = 0,
-		frame_period  = 0.05,
-	}
+	idle_frames := new([dynamic]uint)
+	append(idle_frames, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+	run_frames := new([dynamic]uint)
+	append(run_frames, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+	g.player.idle_anim = new(drawing.Animation)
+	g.player.idle_anim.sprite_sheet = get_sheet(&g.sheets, "mask_idle")
+	g.player.idle_anim.frames = idle_frames[:]
+	g.player.idle_anim.current_frame = 0
+	g.player.idle_anim.frame_period = 0.05
+
+	g.player.run_anim = new(drawing.Animation)
+	g.player.run_anim.sprite_sheet = get_sheet(&g.sheets, "mask_run")
+	g.player.run_anim.frames = run_frames[:]
+	g.player.run_anim.current_frame = 0
+	g.player.run_anim.frame_period = 0.05
+
 
 	g.player.pos.xy = 50
+}
+
+main :: proc() {
+
+	using managers
+
+	init()
+	defer rl.CloseWindow()
+
 
 	for !rl.WindowShouldClose() {
 		event()
@@ -95,19 +121,21 @@ event :: proc() {
 update :: proc() {
 	dt := rl.GetFrameTime()
 	move_input: linalg.Vector3f32
-	g.player.face_left = false
 	if g.input.down do move_input.y += 1
 	if g.input.up do move_input.y -= 1
 	if g.input.left {
 		move_input.x -= 1
 		g.player.face_left = true
 	}
-	if g.input.right do move_input.x += 1
+	if g.input.right {
+		move_input.x += 1
+		g.player.face_left = false
+	}
 
 	if move_input.xy != 0 do move_input.xy *= 1.41 * 0.5
 	g.player.pos += move_input * SPEED_FACTOR * dt
 
-	drawing.update_animation(&g.player.run_anim, dt)
+	drawing.update_animation(g.player.run_anim, dt)
 }
 
 draw :: proc() {
@@ -116,7 +144,7 @@ draw :: proc() {
 
 	drawing.draw_tilemap(&g.tilemap)
 
-	player_run := &g.player.run_anim
+	player_run := g.player.run_anim
 	drawing.draw_tile(
 		player_run.sprite_sheet,
 		player_run.frames[player_run.current_frame],
