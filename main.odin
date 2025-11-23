@@ -22,13 +22,13 @@ Input :: struct {
 }
 
 Player :: struct {
-	pos:       linalg.Vector3f32,
-	vel:       linalg.Vector3f32,
-	run_anim:  ^drawing.Animation,
-	idle_anim: ^drawing.Animation,
-	face_left: bool,
-	collider:  rl.Rectangle,
-	on_floor:  bool,
+	pos:               linalg.Vector3f32,
+	vel:               linalg.Vector3f32,
+	animations:        map[string]^drawing.Animation,
+	current_animation: string,
+	face_left:         bool,
+	collider:          rl.Rectangle,
+	on_floor:          bool,
 }
 
 Global :: struct {
@@ -78,18 +78,23 @@ init :: proc() {
 	run_frames := new([dynamic]uint)
 	append(run_frames, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
 
-	g.player.idle_anim = new(drawing.Animation)
-	g.player.idle_anim.sprite_sheet = get_sheet(&g.sheets, "mask_idle")
-	g.player.idle_anim.frames = idle_frames[:]
-	g.player.idle_anim.current_frame = 0
-	g.player.idle_anim.frame_period = 0.05
 
-	g.player.run_anim = new(drawing.Animation)
-	g.player.run_anim.sprite_sheet = get_sheet(&g.sheets, "mask_run")
-	g.player.run_anim.frames = run_frames[:]
-	g.player.run_anim.current_frame = 0
-	g.player.run_anim.frame_period = 0.05
+	idle_anim := new(drawing.Animation)
+	idle_anim.sprite_sheet = get_sheet(&g.sheets, "mask_idle")
+	idle_anim.frames = idle_frames[:]
+	idle_anim.current_frame = 0
+	idle_anim.frame_period = 0.05
+	g.player.animations["idle"] = idle_anim
 
+	// set starting animation to run
+	g.player.current_animation = "idle"
+
+	run_anim := new(drawing.Animation)
+	run_anim.sprite_sheet = get_sheet(&g.sheets, "mask_run")
+	run_anim.frames = run_frames[:]
+	run_anim.current_frame = 0
+	run_anim.frame_period = 0.05
+	g.player.animations["run"] = run_anim
 
 	g.player.pos.xy = 50
 
@@ -127,13 +132,17 @@ event :: proc() {
 update :: proc() {
 	dt := rl.GetFrameTime()
 	move_input: linalg.Vector3f32
+
+	g.player.current_animation = "idle"
 	if g.input.left {
 		move_input.x -= 1
 		g.player.face_left = true
+		g.player.current_animation = "run"
 	}
 	if g.input.right {
 		move_input.x += 1
 		g.player.face_left = false
+		g.player.current_animation = "run"
 	}
 
 
@@ -145,16 +154,19 @@ update :: proc() {
 		g.player.on_floor = false
 		acceleration.y = -30000
 	}
-
+	// gravity
 	acceleration.y += 500
+
 
 	// (1/2)at^2 + vt + p
 	g.player.pos += 0.5 * acceleration * dt * dt + g.player.vel * dt
 	g.player.vel += acceleration * dt
 
-	drawing.update_animation(g.player.run_anim, dt)
-	g.player.collider = {g.player.pos.x, g.player.pos.y, 32, 32}
 
+	drawing.update_animation(g.player.animations[g.player.current_animation], dt)
+
+	g.player.collider = {g.player.pos.x, g.player.pos.y, 32, 32}
+	// Check if player on floor
 	if rl.CheckCollisionRecs(g.player.collider, g.tilemap.floor_collider) {
 		g.player.on_floor = true
 		g.player.pos.y = g.tilemap.floor_collider.y - 32
@@ -180,10 +192,10 @@ draw :: proc() {
 
 	drawing.draw_tilemap(&g.tilemap)
 
-	player_run := g.player.run_anim
+	player_anim := g.player.animations[g.player.current_animation]
 	drawing.draw_tile(
-		player_run.sprite_sheet,
-		player_run.frames[player_run.current_frame],
+		player_anim.sprite_sheet,
+		player_anim.frames[player_anim.current_frame],
 		g.player.pos.xy,
 		1,
 		g.player.face_left,
@@ -193,4 +205,3 @@ draw :: proc() {
 
 	rl.EndDrawing()
 }
-
