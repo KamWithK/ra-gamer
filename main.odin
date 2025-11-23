@@ -155,8 +155,6 @@ update :: proc() {
 	drawing.update_animation(g.player.run_anim, dt)
 	g.player.collider = {g.player.pos.x, g.player.pos.y, 32, 32}
 
-	fmt.printfln("%d", g.player.on_floor)
-
 	if rl.CheckCollisionRecs(g.player.collider, g.tilemap.floor_collider) {
 		g.player.on_floor = true
 		g.player.pos.y = g.tilemap.floor_collider.y - 32
