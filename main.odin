@@ -156,7 +156,7 @@ update :: proc() {
 	acceleration := move_input * SPEED_FACTOR
 	acceleration -= FRICTION * g.player.vel
 
-	if g.input.up && g.player.on_floor {
+	if (g.input.up || g.input.space) && g.player.on_floor {
 		g.player.on_floor = false
 		acceleration.y = -30000
 	}
