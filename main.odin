@@ -28,6 +28,7 @@ Player :: struct {
 	idle_anim: ^drawing.Animation,
 	face_left: bool,
 	collider:  rl.Rectangle,
+	on_floor:  bool,
 }
 
 Global :: struct {
@@ -126,8 +127,6 @@ event :: proc() {
 update :: proc() {
 	dt := rl.GetFrameTime()
 	move_input: linalg.Vector3f32
-	if g.input.down do move_input.y += 1
-	if g.input.up do move_input.y -= 1
 	if g.input.left {
 		move_input.x -= 1
 		g.player.face_left = true
@@ -137,9 +136,17 @@ update :: proc() {
 		g.player.face_left = false
 	}
 
+
 	if move_input.xy != 0 do move_input.xy *= 1.41 * 0.5
 	acceleration := move_input * SPEED_FACTOR
 	acceleration -= FRICTION * g.player.vel
+
+	if g.input.up && g.player.on_floor {
+		g.player.on_floor = false
+		acceleration.y = -30000
+	}
+
+	acceleration.y += 500
 
 	// (1/2)at^2 + vt + p
 	g.player.pos += 0.5 * acceleration * dt * dt + g.player.vel * dt
@@ -148,9 +155,10 @@ update :: proc() {
 	drawing.update_animation(g.player.run_anim, dt)
 	g.player.collider = {g.player.pos.x, g.player.pos.y, 32, 32}
 
-	fmt.println(g.player.collider)
-	fmt.println(g.tilemap.floor_collider)
+	fmt.printfln("%d", g.player.on_floor)
+
 	if rl.CheckCollisionRecs(g.player.collider, g.tilemap.floor_collider) {
+		g.player.on_floor = true
 		g.player.pos.y = g.tilemap.floor_collider.y - 32
 		g.player.vel.y = 0
 	}
