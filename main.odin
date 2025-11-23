@@ -27,10 +27,11 @@ Player :: struct {
 }
 
 Global :: struct {
-	input:  Input,
-	player: Player,
-	assets: managers.AssetManager,
-	sheets: managers.SpriteSheetManager,
+	input:   Input,
+	player:  Player,
+	assets:  managers.AssetManager,
+	sheets:  managers.SpriteSheetManager,
+	tilemap: drawing.Tilemap,
 }
 g: Global
 
@@ -55,6 +56,12 @@ main :: proc() {
 	)
 	test_sheet := drawing.create_sheet(mask_run, 32, {12, 1})
 	insert_sheet(&g.sheets, test_sheet, "mask_run")
+
+	terrain := load_texture(&g.assets, "assets/Terrain/Terrain (16x16).png", "terrain")
+	terrain_sheet := drawing.create_sheet(terrain, 16, {22, 11})
+	insert_sheet(&g.sheets, terrain_sheet, "terrain")
+
+	g.tilemap = drawing.test_map(&terrain_sheet)
 
 	g.player.run_anim = drawing.Animation {
 		sprite_sheet  = get_sheet(&g.sheets, "mask_run"),
@@ -106,6 +113,8 @@ update :: proc() {
 draw :: proc() {
 	rl.ClearBackground(rl.WHITE)
 	rl.BeginDrawing()
+
+	drawing.draw_tilemap(&g.tilemap)
 
 	player_run := &g.player.run_anim
 	drawing.draw_tile(

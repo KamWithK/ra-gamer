@@ -25,14 +25,16 @@ create_sheet :: proc(
 
 draw_tile :: proc(
 	sprite_sheet: ^SpriteSheet,
-	tile_coords: [2]uint,
+	tile_coords: uint,
 	offset: linalg.Vector2f32,
 	scale: f32,
 	flipped: bool,
 ) {
+	tile_x := tile_coords % sprite_sheet.cell_dimensions.x
+	tile_y := tile_coords / sprite_sheet.cell_dimensions.x
 	rect := rl.Rectangle {
-		f32(tile_coords.x * sprite_sheet.cell_size.x),
-		f32(tile_coords.y * sprite_sheet.cell_size.y),
+		f32(tile_x * sprite_sheet.cell_size.x),
+		f32(tile_y * sprite_sheet.cell_size.y),
 		f32(sprite_sheet.cell_size.x),
 		f32(sprite_sheet.cell_size.y),
 	}
