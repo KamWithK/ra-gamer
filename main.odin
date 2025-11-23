@@ -12,6 +12,7 @@ WINDOW_HEIGHT :: 1080
 WINDOW_FLAGS :: rl.ConfigFlags{.WINDOW_RESIZABLE}
 FPS :: 60
 SPEED_FACTOR :: 500
+FRICTION :: 1.5
 
 Input :: struct {
 	down, up, left, right, space: bool,
@@ -133,7 +134,12 @@ update :: proc() {
 	}
 
 	if move_input.xy != 0 do move_input.xy *= 1.41 * 0.5
-	g.player.pos += move_input * SPEED_FACTOR * dt
+	acceleration := move_input * SPEED_FACTOR
+	acceleration -= FRICTION * g.player.vel
+
+	// (1/2)at^2 + vt + p
+	g.player.pos += 0.5 * acceleration * dt * dt + g.player.vel * dt
+	g.player.vel += acceleration * dt
 
 	drawing.update_animation(g.player.run_anim, dt)
 }
@@ -157,3 +163,4 @@ draw :: proc() {
 
 	rl.EndDrawing()
 }
+
