@@ -31,12 +31,18 @@ Player :: struct {
 	on_floor:          bool,
 }
 
+Placed_Tile :: struct {
+	pos: linalg.Vector2f32,
+	uv:  linalg.Vector4f32,
+}
+
 Global :: struct {
-	input:   Input,
-	player:  Player,
-	assets:  managers.AssetManager,
-	sheets:  managers.SpriteSheetManager,
-	tilemap: drawing.Tilemap,
+	input:        Input,
+	player:       Player,
+	assets:       managers.AssetManager,
+	sheets:       managers.SpriteSheetManager,
+	tilemap:      drawing.Tilemap,
+	placed_tiles: [dynamic]Placed_Tile,
 }
 g: Global
 
@@ -172,6 +178,10 @@ update :: proc() {
 		g.player.pos.y = g.tilemap.floor_collider.y - 32
 		g.player.vel.y = 0
 	}
+
+	if g.input.mouse_left {
+		append(&g.placed_tiles, Placed_Tile{pos = g.input.mouse_pos, uv = {272, 144, 16, 16}})
+	}
 }
 
 draw :: proc() {
@@ -190,6 +200,25 @@ draw :: proc() {
 		rl.WHITE,
 	)
 
+	rl.DrawTexturePro(
+		g.tilemap.sheet.texture^,
+		{272, 144, 16, 16},
+		{g.input.mouse_pos.x, g.input.mouse_pos.y, 16, 16},
+		{0, 0},
+		0,
+		rl.WHITE,
+	)
+	for placed_tile in g.placed_tiles {
+		rl.DrawTexturePro(
+			g.tilemap.sheet.texture^,
+			{placed_tile.uv.x, placed_tile.uv.y, placed_tile.uv.z, placed_tile.uv.w},
+			{placed_tile.pos.x, placed_tile.pos.y, placed_tile.uv.z, placed_tile.uv.w},
+			{0, 0},
+			0,
+			rl.WHITE,
+		)
+	}
+
 	drawing.draw_tilemap(&g.tilemap)
 
 	player_anim := g.player.animations[g.player.current_animation]
@@ -205,3 +234,4 @@ draw :: proc() {
 
 	rl.EndDrawing()
 }
+
