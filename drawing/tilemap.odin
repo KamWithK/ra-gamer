@@ -29,8 +29,9 @@ test_map :: proc(sheet: ^SpriteSheet) -> Tilemap {
 
 
 	tilemap := Tilemap {
-		sheet = sheet,
-		tiles = tiles,
+		sheet          = sheet,
+		tiles          = tiles,
+		floor_collider = floor_rect,
 	}
 
 	return tilemap

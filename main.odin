@@ -1,5 +1,6 @@
 package game
 
+import "core:fmt"
 import "core:log"
 import "core:math/linalg"
 import rl "vendor:raylib"
@@ -26,6 +27,7 @@ Player :: struct {
 	run_anim:  ^drawing.Animation,
 	idle_anim: ^drawing.Animation,
 	face_left: bool,
+	collider:  rl.Rectangle,
 }
 
 Global :: struct {
@@ -89,6 +91,8 @@ init :: proc() {
 
 
 	g.player.pos.xy = 50
+
+	g.player.collider = {g.player.pos.x, g.player.pos.y, 32, 32}
 }
 
 main :: proc() {
@@ -142,6 +146,14 @@ update :: proc() {
 	g.player.vel += acceleration * dt
 
 	drawing.update_animation(g.player.run_anim, dt)
+	g.player.collider = {g.player.pos.x, g.player.pos.y, 32, 32}
+
+	fmt.println(g.player.collider)
+	fmt.println(g.tilemap.floor_collider)
+	if rl.CheckCollisionRecs(g.player.collider, g.tilemap.floor_collider) {
+		g.player.pos.y = g.tilemap.floor_collider.y - 32
+		g.player.vel.y = 0
+	}
 }
 
 draw :: proc() {
@@ -163,4 +175,3 @@ draw :: proc() {
 
 	rl.EndDrawing()
 }
-
