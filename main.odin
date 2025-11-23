@@ -1,6 +1,5 @@
 package game
 
-import "core:fmt"
 import "core:log"
 import "core:math/linalg"
 import rl "vendor:raylib"
@@ -31,9 +30,15 @@ Player :: struct {
 	on_floor:          bool,
 }
 
+Tile_Info :: struct {
+	texture:      ^rl.Texture,
+	uv:           linalg.Vector4f32,
+	damage, heal: int,
+}
+
 Placed_Tile :: struct {
-	pos: linalg.Vector2f32,
-	uv:  linalg.Vector4f32,
+	pos:        linalg.Vector2f32,
+	using tile: Tile_Info,
 }
 
 Global :: struct {
@@ -41,10 +46,22 @@ Global :: struct {
 	player:       Player,
 	assets:       managers.AssetManager,
 	sheets:       managers.SpriteSheetManager,
+	tile_infos:   map[string]Tile_Info,
 	tilemap:      drawing.Tilemap,
 	placed_tiles: [dynamic]Placed_Tile,
 }
 g: Global
+
+draw_tile :: proc(placed_tile: Placed_Tile) {
+	rl.DrawTexturePro(
+		placed_tile.texture^,
+		{placed_tile.uv.x, placed_tile.uv.y, placed_tile.uv.z, placed_tile.uv.w},
+		{placed_tile.pos.x, placed_tile.pos.y, placed_tile.uv.z, placed_tile.uv.w},
+		{0, 0},
+		0,
+		rl.WHITE,
+	)
+}
 
 init :: proc() {
 	using managers
@@ -59,6 +76,10 @@ init :: proc() {
 
 	terrain := load_texture(&g.assets, "assets/Terrain/Terrain (16x16).png", "terrain")
 	terrain_sheet := create_sheet(&g.sheets, "terrain", terrain, 16, {22, 11})
+	g.tile_infos["GOLD_SMALL_SQUARE"] = {
+		texture = terrain,
+		uv      = {272, 144, 16, 16},
+	}
 
 	g.tilemap = drawing.test_map(terrain_sheet)
 
@@ -180,7 +201,10 @@ update :: proc() {
 	}
 
 	if g.input.mouse_left {
-		append(&g.placed_tiles, Placed_Tile{pos = g.input.mouse_pos, uv = {272, 144, 16, 16}})
+		append(
+			&g.placed_tiles,
+			Placed_Tile{pos = g.input.mouse_pos, tile = g.tile_infos["GOLD_SMALL_SQUARE"]},
+		)
 	}
 }
 
@@ -200,23 +224,9 @@ draw :: proc() {
 		rl.WHITE,
 	)
 
-	rl.DrawTexturePro(
-		g.tilemap.sheet.texture^,
-		{272, 144, 16, 16},
-		{g.input.mouse_pos.x, g.input.mouse_pos.y, 16, 16},
-		{0, 0},
-		0,
-		rl.WHITE,
-	)
+	draw_tile({tile = g.tile_infos["GOLD_SMALL_SQUARE"], pos = g.input.mouse_pos})
 	for placed_tile in g.placed_tiles {
-		rl.DrawTexturePro(
-			g.tilemap.sheet.texture^,
-			{placed_tile.uv.x, placed_tile.uv.y, placed_tile.uv.z, placed_tile.uv.w},
-			{placed_tile.pos.x, placed_tile.pos.y, placed_tile.uv.z, placed_tile.uv.w},
-			{0, 0},
-			0,
-			rl.WHITE,
-		)
+		draw_tile(placed_tile)
 	}
 
 	drawing.draw_tilemap(&g.tilemap)
