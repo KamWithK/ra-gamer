@@ -1,28 +1,32 @@
 package drawing
 
+import rl "vendor:raylib"
+
 Tile :: struct {
 	sheet_idx: uint,
 	pos:       [2]uint,
 }
 
 Tilemap :: struct {
-	sheet: ^SpriteSheet,
-	tiles: [dynamic]Tile,
+	sheet:          ^SpriteSheet,
+	tiles:          [dynamic]Tile,
+	floor_collider: rl.Rectangle,
 }
 
 test_map :: proc(sheet: ^SpriteSheet) -> Tilemap {
 	tiles := make([dynamic]Tile)
 
+	floor_offset: uint = 400
 
-	append(
-		&tiles,
-		Tile{0, {0, 64}},
-		Tile{1, {16, 64}},
-		Tile{1, {32, 64}},
-		Tile{1, {48, 64}},
-		Tile{1, {64, 64}},
-		Tile{2, {80, 64}},
-	)
+	floor_rect := rl.Rectangle{0, f32(floor_offset), 1920, 16}
+
+	append(&tiles, Tile{0, {0, floor_offset}})
+
+	for i in 1 ..< 119 {
+		append(&tiles, Tile{1, {uint(16 * i), floor_offset}})
+	}
+	append(&tiles, Tile{2, {1904, floor_offset}})
+
 
 	tilemap := Tilemap {
 		sheet = sheet,
