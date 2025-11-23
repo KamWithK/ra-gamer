@@ -166,6 +166,18 @@ draw :: proc() {
 	rl.ClearBackground(rl.WHITE)
 	rl.BeginDrawing()
 
+	source_rect := rl.Rectangle{272, 64, 48, 48}
+	width := f32(rl.GetScreenWidth())
+	height := f32(rl.GetScreenHeight())
+	rl.DrawTexturePro(
+		g.tilemap.sheet.texture^,
+		source_rect,
+		{0, 0, width, height},
+		{0, 0},
+		0,
+		rl.WHITE,
+	)
+
 	drawing.draw_tilemap(&g.tilemap)
 
 	player_run := g.player.run_anim
@@ -181,3 +193,4 @@ draw :: proc() {
 
 	rl.EndDrawing()
 }
+
